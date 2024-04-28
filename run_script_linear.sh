@@ -15,7 +15,7 @@ seq_len=720
 pred_len=96
 for random_seed in 2023 2024 2025 2026 2027
     do
-    for model_name in Lineae NLinear
+    for model_name in Linear NLinear
       do
         python -u run_longExp.py \
           --is_training 1 \
