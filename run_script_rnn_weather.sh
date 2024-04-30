@@ -14,7 +14,7 @@ data_name=custom
 
 seq_len=720
 pred_len=96
-for random_seed in 2023 2024 2025 2026 2027
+for random_seed in 3000 3001 3002 3003 3004 3005 3006 3007 3008 3008
     do
     for rnn_type in rnn gru lstm
       do
