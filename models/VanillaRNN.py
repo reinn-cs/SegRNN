@@ -19,7 +19,7 @@ class Model(nn.Module):
         self.rnn_type = configs.rnn_type
 
         # build model
-        assert self.rnn_type in ['rnn', 'gru', 'lstm']
+        assert self.rnn_type in ['rnn', 'gru', 'lstm', 'linear', 'linear_tanh']
         if self.rnn_type == "rnn":
             self.rnn = nn.RNN(input_size=self.enc_in, hidden_size=self.d_model, num_layers=1, bias=True,
                               batch_first=True, bidirectional=False)
@@ -29,6 +29,13 @@ class Model(nn.Module):
         elif self.rnn_type == "lstm":
             self.rnn = nn.LSTM(input_size=self.enc_in, hidden_size=self.d_model, num_layers=1, bias=True,
                               batch_first=True, bidirectional=False)
+        elif self.rnn_type == "linear":
+            self.rnn = nn.Linear(self.enc_in, self.d_model)
+        elif self.rnn_type == "linear_tanh":
+            self.rnn = nn.Sequential(
+                nn.Linear(self.enc_in, self.d_model),
+                nn.Tanh()
+            )
 
         self.predict = nn.Sequential(
             nn.Linear(self.d_model, self.enc_in)
@@ -42,6 +49,8 @@ class Model(nn.Module):
         # encoding
         if self.rnn_type == "lstm":
             _, (hn, cn) = self.rnn(x)
+        elif self.rnn_type in ['linear', 'linear_tanh']:
+            hn = self.rnn(x)
         else:
             _, hn = self.rnn(x) # b,s,d  1,b,d
 
@@ -53,6 +62,12 @@ class Model(nn.Module):
                 yy = yy.permute(1, 0, 2)  # b,1,c
                 y.append(yy)
                 _, (hn, cn) = self.rnn(yy, (hn, cn))
+        elif self.rnn_type in ['linear', 'linear_tanh']:
+            for i in range(self.pred_len):
+                yy = self.predict(hn)    # 1,b,c
+                yy = yy.permute(1,0,2) # b,1,c
+                y.append(yy)
+                hn = self.rnn(yy)
         else:
             for i in range(self.pred_len):
                 yy = self.predict(hn)    # 1,b,c
