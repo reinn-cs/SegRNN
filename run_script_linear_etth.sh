@@ -43,3 +43,4 @@ for random_seed in 2023 2024 2025 2026 2027 2028 2029 2030 2031 2032
     done
 done
 
+mkdir combined_results && cp -r checkpoints/*/ combined_results/. && cp -r results/*/ combined_results/. && cp -r test_results/*/ combined_results/. && cp result.txt combined_results/. && zip -r linear_layers_etth.zip combined_results/*
