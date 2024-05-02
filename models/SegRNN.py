@@ -23,7 +23,7 @@ class Model(nn.Module):
         self.channel_id = configs.channel_id
         self.revin = configs.revin
 
-        assert self.rnn_type in ['rnn', 'gru', 'lstm']
+        assert self.rnn_type in ['rnn', 'gru', 'lstm', 'linear', 'linear_tanh']
         assert self.dec_way in ['rmf', 'pmf']
 
         self.seg_num_x = self.seq_len//self.seg_len
@@ -43,6 +43,13 @@ class Model(nn.Module):
         elif self.rnn_type == "lstm":
             self.rnn = nn.LSTM(input_size=self.d_model, hidden_size=self.d_model, num_layers=1, bias=True,
                               batch_first=True, bidirectional=False)
+        elif self.rnn_type == "linear":
+            self.rnn = nn.Linear(self.enc_in, self.d_model)
+        elif self.rnn_type == "linear_tanh":
+            self.rnn = nn.Sequential(
+                nn.Linear(self.enc_in, self.d_model),
+                nn.Tanh()
+            )
 
         if self.dec_way == "rmf":
             self.seg_num_y = self.pred_len // self.seg_len
@@ -86,6 +93,8 @@ class Model(nn.Module):
         # encoding
         if self.rnn_type == "lstm":
             _, (hn, cn) = self.rnn(x)
+        elif self.rnn_type in ['linear', 'linear_tanh']:
+            hn = self.rnn(x)
         else:
             _, hn = self.rnn(x) # bc,n,d  1,bc,d
 
@@ -121,6 +130,8 @@ class Model(nn.Module):
                 _, (hy, cy) = self.rnn(pos_emb,
                                        (hn.repeat(1, 1, self.seg_num_y).view(1, -1, self.d_model),
                                         cn.repeat(1, 1, self.seg_num_y).view(1, -1, self.d_model)))
+            elif self.rnn_type in ['linear', 'linear_tanh']:
+                hy = self.rnn(pos_emb)
             else:
                 _, hy = self.rnn(pos_emb, hn.repeat(1, 1, self.seg_num_y).view(1, -1, self.d_model))
             # 1,bcm,d -> 1,bcm,w -> b,c,s
