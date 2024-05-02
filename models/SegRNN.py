@@ -44,10 +44,10 @@ class Model(nn.Module):
             self.rnn = nn.LSTM(input_size=self.d_model, hidden_size=self.d_model, num_layers=1, bias=True,
                               batch_first=True, bidirectional=False)
         elif self.rnn_type == "linear":
-            self.rnn = nn.Linear(self.enc_in, self.d_model)
+            self.rnn = nn.Linear(self.d_model, self.d_model)
         elif self.rnn_type == "linear_tanh":
             self.rnn = nn.Sequential(
-                nn.Linear(self.enc_in, self.d_model),
+                nn.Linear(self.d_model, self.d_model),
                 nn.Tanh()
             )
 
