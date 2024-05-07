@@ -9,3 +9,4 @@ logs/
 .DS_Store
 /combined_results/
 /different_rnns_etth.zip
+/experiment_results/
