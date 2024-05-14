@@ -38,6 +38,7 @@ do
       --dec_way pmf \
       --channel_id 0 \
       --revin 1 \
+      --random_seed $random_seed \
       --itr 1 --batch_size 8 --learning_rate 0.003 > logs/LongForecasting/$model_name'_'$rnn_type'_'$model_id_name'_'$seq_len'_'$pred_len.log
   done
 done
